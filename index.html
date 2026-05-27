@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIKA Studio — Protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1714;
+    --paper: #faf7f2;
+    --paper-2: #f4efe7;
+    --line: #e5ddd0;
+    --muted: #8a7f70;
+    --accent: #c8553d;
+    --accent-soft: #f0d5cc;
+    --green: #5a7a3f;
+    --green-soft: #d9e3ca;
+    --amber: #b8862b;
+    --amber-soft: #f0e2bf;
+    --blue: #3d5a7a;
+    --blue-soft: #cdd9e6;
+    --shadow: 0 1px 2px rgba(26,23,20,0.04), 0 8px 24px rgba(26,23,20,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Geist', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Layout */
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--paper-2);
+    border-right: 1px solid var(--line);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .brand-mark {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .brand-mark em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .brand-tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .nav-section { display: flex; flex-direction: column; gap: 2px; }
+  .nav-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0 8px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink);
+    font-weight: 400;
+    transition: background 0.15s;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .nav-item:hover { background: rgba(26,23,20,0.05); }
+  .nav-item.active { background: var(--ink); color: var(--paper); }
+  .nav-item .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted);
+  }
+  .nav-item.active .dot { background: var(--accent); }
+
+  .client-list { display: flex; flex-direction: column; gap: 2px; }
+  .client-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  .client-item:hover { background: rgba(26,23,20,0.05); }
+  .client-item.active { background: rgba(200, 85, 61, 0.1); color: var(--accent); }
+  .client-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .client-item.active .client-avatar { background: var(--accent); }
+  .client-count {
+    margin-left: auto;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* Main */
+  .main {
+    padding: 28px 36px 60px;
+    max-width: 1400px;
+    width: 100%;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .breadcrumb {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .page-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .page-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .btn {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink);
+  }
+  .btn:hover { border-color: var(--ink); }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+
+  /* View tabs */
+  .view-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .view-tab {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .view-tab:hover { color: var(--ink); }
+  .view-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .stat-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .stat-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .stat-meta strong { color: var(--accent); font-weight: 500; }
+
+  /* Kanban */
+  .kanban {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .column {
+    background: var(--paper-2);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 400px;
+  }
+  .column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+  .column-title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .column-title .pill {
+    background: var(--paper);
+    color: var(--muted);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    letter-spacing: 0;
+  }
+  .col-icon {
+    width: 8px; height: 8px; border-radius: 2px;
+    background: var(--muted);
+  }
+  .col-draft .col-icon { background: var(--muted); }
+  .col-review .col-icon { background: var(--amber); }
+  .col-approval .col-icon { background: var(--blue); }
+  .col-approved .col-icon { background: var(--green); }
+  .col-published .col-icon { background: var(--accent); }
+
+  .card-list { display: flex; flex-direction: column; gap: 8px; }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+    border-color: var(--ink);
+  }
+  .card-thumb {
+    aspect-ratio: 4/5;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: var(--paper-2);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    text-align: center;
+    padding: 14px;
+    line-height: 1.2;
+    font-style: italic;
+  }
+  .thumb-1 { background: linear-gradient(135deg, #f0d5cc, #c8553d); color: #fff; }
+  .thumb-2 { background: linear-gradient(135deg, #d9e3ca, #5a7a3f); color: #fff; }
+  .thumb-3 { background: linear-gradient(135deg, #f0e2bf, #b8862b); color: #fff; }
+  .thumb-4 { background: linear-gradient(135deg, #cdd9e6, #3d5a7a); color: #fff; }
+  .thumb-5 { background: linear-gradient(135deg, #1a1714, #4a423a); color: #faf7f2; }
+  .thumb-6 { background: linear-gradient(135deg, #faf7f2, #e5ddd0); color: #1a1714; border: 1px solid var(--line); }
+
+  .card-type {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(26,23,20,0.7);
+    color: var(--paper);
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    backdrop-filter: blur(8px);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .card-date { font-family: 'Geist Mono', monospace; }
+  .card-tags { display: flex; gap: 4px; }
+  .tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .tag-reel { background: var(--accent-soft); color: var(--accent); }
+  .tag-carrossel { background: var(--blue-soft); color: var(--blue); }
+  .tag-story { background: var(--amber-soft); color: var(--amber); }
+  .tag-post { background: var(--green-soft); color: var(--green); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,23,20,0.4);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    box-shadow: 0 20px 60px rgba(26,23,20,0.2);
+    animation: modalIn 0.25s ease-out;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-preview {
+    background: var(--paper-2);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .modal-thumb {
+    aspect-ratio: 4/5;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    text-align: center;
+    padding: 24px;
+    font-style: italic;
+    line-height: 1.2;
+  }
+  .caption-block {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .caption-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .modal-side {
+    padding: 24px 28px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--muted);
+    padding: 0;
+    line-height: 1;
+  }
+  .close-btn:hover { color: var(--ink); }
+
+  .modal-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 16px;
+    font-size: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .modal-meta dt {
+    color: var(--muted);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    align-self: center;
+  }
+  .modal-meta dd { font-size: 13px; }
+
+  .section-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 10px;
+  }
+
+  .chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+    min-height: 100px;
+  }
+  .msg {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    max-width: 85%;
+    line-height: 1.45;
+  }
+  .msg-them {
+    background: var(--paper-2);
+    align-self: flex-start;
+    border-bottom-left-radius: 3px;
+  }
+  .msg-us {
+    background: var(--ink);
+    color: var(--paper);
+    align-self: flex-end;
+    border-bottom-right-radius: 3px;
+  }
+  .msg-author {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    margin-bottom: 3px;
+  }
+
+  .chat-input {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+  }
+  .chat-input input {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--paper);
+  }
+  .chat-input input:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  .action-row {
+    display: flex;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    margin-top: 14px;
+  }
+  .btn-approve {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+    flex: 1;
+    justify-content: center;
+  }
+  .btn-approve:hover { background: #4a6630; border-color: #4a6630; }
+  .btn-adjust {
+    background: var(--amber-soft);
+    color: var(--amber);
+    border-color: var(--amber-soft);
+    flex: 1;
+    justify-content: center;
+  }
+  .btn-adjust:hover { background: var(--amber); color: white; }
+
+  /* Calendar view */
+  .calendar {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+  }
+  .cal-header, .cal-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .cal-header {
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .cal-day-name {
+    padding: 10px 12px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-right: 1px solid var(--line);
+  }
+  .cal-day-name:last-child { border-right: none; }
+  .cal-cell {
+    min-height: 110px;
+    padding: 10px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .cal-row:last-child .cal-cell { border-bottom: none; }
+  .cal-cell:nth-child(7n) { border-right: none; }
+  .cal-cell.muted { background: var(--paper-2); }
+  .cal-date {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .cal-event {
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.3;
+  }
+  .cal-event:hover { background: var(--accent); }
+  .cal-event.reel { background: var(--accent); }
+  .cal-event.carrossel { background: var(--blue); }
+  .cal-event.story { background: var(--amber); }
+  .cal-event.post { background: var(--green); }
+
+  /* Client portal note */
+  .portal-banner {
+    background: linear-gradient(135deg, var(--ink), #2d2520);
+    color: var(--paper);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .portal-text { font-size: 13px; line-height: 1.5; max-width: 560px; }
+  .portal-text strong {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 16px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .portal-text small { color: rgba(250,247,242,0.65); font-size: 11px; }
+  .btn-portal {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    white-space: nowrap;
+  }
+  .btn-portal:hover { background: #b04733; border-color: #b04733; }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .kanban { grid-template-columns: 1fr; }
+    .modal { grid-template-columns: 1fr; max-height: 95vh; }
+    .modal-preview { display: none; }
+    .main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">M<em>i</em>ka</span>
+      <span class="brand-tag">studio</span>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Workspace</div>
+      <button class="nav-item active"><span class="dot"></span> Conteúdos</button>
+      <button class="nav-item"><span class="dot"></span> Calendário</button>
+      <button class="nav-item"><span class="dot"></span> Banco de ideias</button>
+      <button class="nav-item"><span class="dot"></span> Referências</button>
+      <button class="nav-item"><span class="dot"></span> Briefings</button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Clientes</div>
+      <div class="client-list">
+        <button class="client-item active" data-client="amanda">
+          <span class="client-avatar">AM</span>
+          Amanda Marroni
+          <span class="client-count">12</span>
+        </button>
+        <button class="client-item" data-client="leila">
+          <span class="client-avatar">LR</span>
+          Leila Rafihi
+          <span class="client-count">8</span>
+        </button>
+        <button class="client-item" data-client="luciana">
+          <span class="client-avatar">LB</span>
+          Luciana Bousfield
+          <span class="client-count">5</span>
+        </button>
+        <button class="client-item" data-client="amma">
+          <span class="client-avatar">AC</span>
+          Amma Concept
+          <span class="client-count">9</span>
+        </button>
+        <button class="client-item" data-client="matheus">
+          <span class="client-avatar">MM</span>
+          Matheus Magrinelli
+          <span class="client-count">4</span>
+        </button>
+        <button class="client-item" data-client="cmec">
+          <span class="client-avatar">CM</span>
+          CMEC
+          <span class="client-count">6</span>
+        </button>
+        <button class="client-item" data-client="cleiton">
+          <span class="client-avatar">CL</span>
+          Cleiton
+          <span class="client-count">3</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-section" style="margin-top:auto">
+      <div class="nav-label">Você</div>
+      <button class="nav-item">
+        <span class="client-avatar" style="background:var(--accent);width:22px;height:22px">MI</span>
+        Mi · Diretora
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <div class="breadcrumb">Amanda Marroni · Outubro</div>
+        <h1 class="page-title">Conteúdo de <em>outubro</em></h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn">⌕ Buscar</button>
+        <button class="btn">⚙ Filtros</button>
+        <button class="btn btn-primary">＋ Novo conteúdo</button>
+      </div>
+    </div>
+
+    <!-- Portal banner -->
+    <div class="portal-banner">
+      <div class="portal-text">
+        <strong>Portal de aprovação da Amanda</strong>
+        Link único sem login — ela aprova, ajusta ou comenta direto.
+        <br><small>mika.studio/aprovacao/amanda-marroni-7a2f · expira em 30 dias</small>
+      </div>
+      <button class="btn btn-portal">↗ Copiar link do cliente</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Em aprovação</div>
+        <div class="stat-value">4</div>
+        <div class="stat-meta"><strong>2</strong> aguardando há +2 dias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Aprovados</div>
+        <div class="stat-value">5</div>
+        <div class="stat-meta">prontos pra agendar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Publicados no mês</div>
+        <div class="stat-value">11</div>
+        <div class="stat-meta">meta: 16 · <strong>69%</strong></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Próxima publicação</div>
+        <div class="stat-value" style="font-size:22px">Hoje, 19h</div>
+        <div class="stat-meta">Reel · "5 mitos da perda de peso"</div>
+      </div>
+    </div>
+
+    <!-- View tabs -->
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="kanban">Kanban</button>
+      <button class="view-tab" data-view="calendar">Calendário</button>
+      <button class="view-tab" data-view="list">Lista</button>
+    </div>
+
+    <!-- KANBAN -->
+    <div class="kanban" id="kanban-view">
+
+      <!-- Rascunho -->
+      <div class="column col-draft">
+        <div class="column-header">
+          <div class="column-title"><span class="col-icon"></span> Rascunho <span class="pill">2</span></div>
+        </div>
+        <div class="card-list">
+          <div class="card" data-card="1">
+            <div class="card-thumb thumb-6"><span class="card-type">Carrossel</span>"Três coisas que ninguém te conta sobre emagrecer aos 40+"</div>
+            <div class="card-title">3 coisas sobre emagrecer 40+</div>
+            <div class="card-meta">
+              <span class="card-date">12 OUT</span>
+              <div class="card-tags"><span class="tag tag-carrossel">CARR</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="2">
+            <div class="card-thumb thumb-3"><span class="card-type">Reel</span>"Por que você sente fome o dia todo?"</div>
+            <div class="card-title">Por que você sente fome?</div>
+            <div class="card-meta">
+              <span class="card-date">14 OUT</span>
+              <div class="card-tags"><span class="tag tag-reel">REEL</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revisão interna -->
+      <div class="column col-review">
+        <div class="column-header">
+          <div class="column-title"><span class="col-icon"></span> Revisão MIKA <span class="pill">1</span></div>
+        </div>
+        <div class="card-list">
+          <div class="card" data-card="3">
+            <div class="card-thumb thumb-2"><span class="card-type">Carrossel</span>"O erro que toda mulher 40+ comete na dieta"</div>
+            <div class="card-title">O erro que toda mulher 40+ comete</div>
+            <div class="card-meta">
+              <span class="card-date">15 OUT</span>
+              <div class="card-tags"><span class="tag tag-carrossel">CARR</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aprovação cliente -->
+      <div class="column col-approval">
+        <div class="column-header">
+          <div class="column-title"><span class="col-icon"></span> Cliente <span class="pill">4</span></div>
+        </div>
+        <div class="card-list">
+          <div class="card" data-card="4" style="border-color:var(--accent)">
+            <div class="card-thumb thumb-1"><span class="card-type">Reel</span>"5 mitos da perda de peso depois dos 40"</div>
+            <div class="card-title">5 mitos da perda de peso</div>
+            <div class="card-meta">
+              <span class="card-date">⚠ HÁ 3 DIAS</span>
+              <div class="card-tags"><span class="tag tag-reel">REEL</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="5">
+            <div class="card-thumb thumb-4"><span class="card-type">Post</span>"Antes e depois real — Cliente Mariana"</div>
+            <div class="card-title">Depoimento Mariana</div>
+            <div class="card-meta">
+              <span class="card-date">17 OUT</span>
+              <div class="card-tags"><span class="tag tag-post">POST</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="6">
+            <div class="card-thumb thumb-3"><span class="card-type">Story</span>"Bastidores: cardápio de um dia"</div>
+            <div class="card-title">Bastidores cardápio</div>
+            <div class="card-meta">
+              <span class="card-date">18 OUT</span>
+              <div class="card-tags"><span class="tag tag-story">STORY</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="7">
+            <div class="card-thumb thumb-5"><span class="card-type">Reel</span>"Você não precisa cortar carboidrato"</div>
+            <div class="card-title">Não precisa cortar carb</div>
+            <div class="card-meta">
+              <span class="card-date">19 OUT</span>
+              <div class="card-tags"><span class="tag tag-reel">REEL</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aprovado -->
+      <div class="column col-approved">
+        <div class="column-header">
+          <div class="column-title"><span class="col-icon"></span> Aprovado <span class="pill">3</span></div>
+        </div>
+        <div class="card-list">
+          <div class="card" data-card="8">
+            <div class="card-thumb thumb-2"><span class="card-type">Carrossel</span>"Guia: como começar sem dieta restritiva"</div>
+            <div class="card-title">Guia sem restrição</div>
+            <div class="card-meta">
+              <span class="card-date">20 OUT</span>
+              <div class="card-tags"><span class="tag tag-carrossel">CARR</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="9">
+            <div class="card-thumb thumb-1"><span class="card-type">Reel</span>"O que comer antes do treino?"</div>
+            <div class="card-title">O que comer antes do treino</div>
+            <div class="card-meta">
+              <span class="card-date">22 OUT</span>
+              <div class="card-tags"><span class="tag tag-reel">REEL</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="10">
+            <div class="card-thumb thumb-4"><span class="card-type">Post</span>"Frase da semana"</div>
+            <div class="card-title">Frase da semana</div>
+            <div class="card-meta">
+              <span class="card-date">24 OUT</span>
+              <div class="card-tags"><span class="tag tag-post">POST</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Publicado -->
+      <div class="column col-published">
+        <div class="column-header">
+          <div class="column-title"><span class="col-icon"></span> Publicado <span class="pill">11</span></div>
+        </div>
+        <div class="card-list">
+          <div class="card" data-card="11" style="opacity:0.7">
+            <div class="card-thumb thumb-5"><span class="card-type">Reel</span>"Café da manhã que sustenta"</div>
+            <div class="card-title">Café da manhã que sustenta</div>
+            <div class="card-meta">
+              <span class="card-date">08 OUT</span>
+              <div class="card-tags"><span class="tag tag-reel">REEL</span></div>
+            </div>
+          </div>
+          <div class="card" data-card="12" style="opacity:0.7">
+            <div class="card-thumb thumb-3"><span class="card-type">Carrossel</span>"Por que mulher engorda diferente do homem"</div>
+            <div class="card-title">Mulher engorda diferente</div>
+            <div class="card-meta">
+              <span class="card-date">05 OUT</span>
+              <div class="card-tags"><span class="tag tag-carrossel">CARR</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CALENDAR (hidden by default) -->
+    <div class="calendar" id="calendar-view">
+      <div class="cal-header">
+        <div class="cal-day-name">Seg</div>
+        <div class="cal-day-name">Ter</div>
+        <div class="cal-day-name">Qua</div>
+        <div class="cal-day-name">Qui</div>
+        <div class="cal-day-name">Sex</div>
+        <div class="cal-day-name">Sáb</div>
+        <div class="cal-day-name">Dom</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-cell muted"><div class="cal-date">29</div></div>
+        <div class="cal-cell muted"><div class="cal-date">30</div></div>
+        <div class="cal-cell"><div class="cal-date">01</div></div>
+        <div class="cal-cell"><div class="cal-date">02</div></div>
+        <div class="cal-cell"><div class="cal-date">03</div><div class="cal-event reel">Reel · Bem-vindo</div></div>
+        <div class="cal-cell"><div class="cal-date">04</div></div>
+        <div class="cal-cell"><div class="cal-date">05</div><div class="cal-event carrossel">Carrossel · Engorda dif.</div></div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-cell"><div class="cal-date">06</div></div>
+        <div class="cal-cell"><div class="cal-date">07</div><div class="cal-event story">Story · Dia comum</div></div>
+        <div class="cal-cell"><div class="cal-date">08</div><div class="cal-event reel">Reel · Café manhã</div></div>
+        <div class="cal-cell"><div class="cal-date">09</div></div>
+        <div class="cal-cell"><div class="cal-date">10</div><div class="cal-event post">Post · Frase</div></div>
+        <div class="cal-cell"><div class="cal-date">11</div></div>
+        <div class="cal-cell"><div class="cal-date">12</div><div class="cal-event carrossel">Carrossel · 3 coisas 40+</div></div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-cell"><div class="cal-date">13</div></div>
+        <div class="cal-cell"><div class="cal-date">14</div><div class="cal-event reel">Reel · Sente fome</div></div>
+        <div class="cal-cell"><div class="cal-date">15</div><div class="cal-event carrossel">Carrossel · O erro</div></div>
+        <div class="cal-cell" style="background:var(--accent-soft)"><div class="cal-date" style="color:var(--accent);font-weight:600">16 · HOJE</div><div class="cal-event reel">Reel · 5 mitos · 19h</div></div>
+        <div class="cal-cell"><div class="cal-date">17</div><div class="cal-event post">Post · Mariana</div></div>
+        <div class="cal-cell"><div class="cal-date">18</div><div class="cal-event story">Story · Cardápio</div></div>
+        <div class="cal-cell"><div class="cal-date">19</div><div class="cal-event reel">Reel · Não cortar carb</div></div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-cell"><div class="cal-date">20</div><div class="cal-event carrossel">Carrossel · Guia</div></div>
+        <div class="cal-cell"><div class="cal-date">21</div></div>
+        <div class="cal-cell"><div class="cal-date">22</div><div class="cal-event reel">Reel · Antes treino</div></div>
+        <div class="cal-cell"><div class="cal-date">23</div></div>
+        <div class="cal-cell"><div class="cal-date">24</div><div class="cal-event post">Post · Frase</div></div>
+        <div class="cal-cell"><div class="cal-date">25</div></div>
+        <div class="cal-cell"><div class="cal-date">26</div></div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-preview">
+      <div class="modal-thumb thumb-1">"5 mitos da perda de peso depois dos 40"</div>
+      <div class="caption-block">
+        <div class="caption-label">Legenda</div>
+        Você ainda acredita que precisa passar fome pra emagrecer depois dos 40? 🙅‍♀️<br><br>
+        Nesse vídeo eu desmonto os 5 mitos que mais travam mulheres como você. Salva pra ver depois e me conta nos comentários: qual você já acreditou?<br><br>
+        #emagrecimentosaudavel #mulher40mais #nutricaofeminina
+      </div>
+      <div class="caption-block">
+        <div class="caption-label">Trilha · Hashtags · Horário</div>
+        🎵 Trend "Olha o que você fez" · 🕐 16/out · 19h00 · 📍 Sem geolocalização
+      </div>
+    </div>
+
+    <div class="modal-side">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">5 mitos da perda de peso depois dos 40</h2>
+          <div style="margin-top:6px;display:flex;gap:6px">
+            <span class="tag tag-reel">REEL</span>
+            <span class="tag" style="background:var(--blue-soft);color:var(--blue)">EM APROVAÇÃO</span>
+          </div>
+        </div>
+        <button class="close-btn" id="close-modal">✕</button>
+      </div>
+
+      <dl class="modal-meta">
+        <dt>Cliente</dt><dd>Amanda Marroni</dd>
+        <dt>Publicação</dt><dd>16 out · quinta · 19h</dd>
+        <dt>Plataforma</dt><dd>Instagram · TikTok</dd>
+        <dt>Responsável</dt><dd>Mi Katayama</dd>
+      </dl>
+
+      <div class="section-label">Chat de aprovação</div>
+      <div class="chat" id="chat">
+        <div class="msg msg-us">
+          <div class="msg-author">Mi · 13 out 14:32</div>
+          Oi Amanda! Enviei o reel pra sua aprovação. Foquei nos 5 mitos mais comentados em consulta. Qualquer ajuste é só me falar por aqui 💛
+        </div>
+        <div class="msg msg-them">
+          <div class="msg-author">Amanda · 14 out 09:15</div>
+          Amei o conceito! Só uma coisa: no mito 3, posso ajustar a fala "carboidrato engorda" pra "carboidrato é vilão"? Soa mais próximo do que falo em consulta.
+        </div>
+        <div class="msg msg-us">
+          <div class="msg-author">Mi · 14 out 10:02</div>
+          Perfeito, ajustei! Subi a nova versão, dá uma olhada quando puder ✨
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <input type="text" placeholder="Responda Amanda..." id="chat-input">
+        <button class="btn btn-primary">↑</button>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-adjust">⟲ Solicitar ajuste</button>
+        <button class="btn btn-approve">✓ Aprovar publicação</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Open modal on card click
+  document.querySelectorAll('.card').forEach(c => {
+    c.addEventListener('click', () => {
+      document.getElementById('modal').classList.add('open');
+    });
+  });
+  document.getElementById('close-modal').addEventListener('click', () => {
+    document.getElementById('modal').classList.remove('open');
+  });
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
+  });
+
+  // View tabs
+  document.querySelectorAll('.view-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      const view = t.dataset.view;
+      document.getElementById('kanban-view').style.display = view === 'kanban' ? 'grid' : 'none';
+      document.getElementById('calendar-view').style.display = view === 'calendar' ? 'block' : 'none';
+    });
+  });
+
+  // Calendar event click
+  document.querySelectorAll('.cal-event').forEach(e => {
+    e.addEventListener('click', () => document.getElementById('modal').classList.add('open'));
+  });
+
+  // Client switching (visual only)
+  document.querySelectorAll('.client-item').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.client-item').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+
+  // Chat input
+  const chatInput = document.getElementById('chat-input');
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && chatInput.value.trim()) {
+      const chat = document.getElementById('chat');
+      const msg = document.createElement('div');
+      msg.className = 'msg msg-us';
+      msg.innerHTML = '<div class="msg-author">Mi · agora</div>' + chatInput.value;
+      chat.appendChild(msg);
+      chatInput.value = '';
+      chat.scrollTop = chat.scrollHeight;
+    }
+  });
+</script>
+
+</body>
+</html>
